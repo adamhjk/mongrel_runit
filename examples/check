@@ -1,0 +1,11 @@
+#!/usr/local/bin/ruby
+
+require 'net/http'
+
+http = Net::HTTP.new('127.0.0.1', 8192)
+response = http.options('/')
+if response = Net::HTTPSuccess
+  exit 0
+else 
+  exit 1
+end

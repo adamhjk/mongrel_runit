@@ -1,0 +1,10 @@
+---
+port: 3500
+address: 127.0.0.1
+servers: 2
+environment: development
+timeout: 100
+num_procs: 1024
+runit_sv_dir: ./sv
+runit_service_dir: ./service
+application_name: testapp

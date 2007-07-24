@@ -1,0 +1,21 @@
+---
+port: 3000
+address: 127.0.0.1
+pid_file: log/mongrel.pid
+servers: 2
+log_file: foo.log
+environment: production
+cwd: /Users/adam/src/sandbox/mongrel_runit
+timeout: 100
+mime_map: log/mime.map
+docroot: htdocs
+num_procs: 1024
+debug: true
+config_path: /foo/bar/config
+config_script: /foo/bar/config/yml
+user: www-data
+group: www-data
+prefix: /monkey
+runit_sv_dir: /etc/sv
+runit_service_dir: /var/service
+application_name: monkey

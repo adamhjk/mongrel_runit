@@ -1,0 +1,12 @@
+---
+port: 3000
+address: 127.0.0.1
+servers: 2
+environment: production
+docroot: htdocs
+num_procs: 1024
+user: www-data
+group: www-data
+application_name: monkey
+env_vars:
+  PATH: "$PATH:/var/lib/gems/1.8/bin"

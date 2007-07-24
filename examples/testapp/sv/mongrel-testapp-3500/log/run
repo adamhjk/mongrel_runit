@@ -1,0 +1,2 @@
+#!/bin/sh
+exec svlogd -tt /Users/adam/src/sandbox/mongrel_runit/examples/testapp/sv/mongrel-testapp-3500/log/main
