@@ -4,10 +4,23 @@
 require 'mongrel_runit/base'
 
 module MongrelRunit
+  
+  # Represents a runit service directory for a particular mongrel.
+  # 
+  # Example:
+  # 
+  #   service = MongrelRunit::Service.new(config)
+  #   service.stop
+  #   service.start
+  #   service.create
+  #
+  
   class Service < Base
     
     attr_reader :runfile, :logrunfile, :logconfig, :checkfile, :config, :svdir
     
+    # Takes a configuration hash as it's argument, ensures the 
+    # runit_service_dir exists, and creates the runit_sv_dir.
     def initialize(config)
       @config = config
       
@@ -20,6 +33,8 @@ module MongrelRunit
       make_sv_dir 
     end
     
+    # Catch-all for the common service commands.  See MongrelRunit::Base for 
+    # a list.
     def method_missing(status)
       if self.has_command?(status.id2name)
         run(status.id2name)
@@ -28,17 +43,22 @@ module MongrelRunit
       end
     end
     
+    # Returns true if the process is running, nil if it's not.
     def is_running? 
       output, success = run("status")
       output =~ /^run:/ ? true : nil
     end
     
+    # Run a given command through sv.
     def run(status)
       cmd = "sv #{status} #{@svdir}"
       output = `#{cmd}`
       return output, $?.success?
     end
     
+    # Create the service directory for this mongrel.  This includes the
+    # run script, log script, check script, and log config file.  This
+    # should run any time there is a change to the configruation.
     def create
       make_run
       make_check
@@ -48,12 +68,15 @@ module MongrelRunit
       return link, true
     end
     
+    # Raises an exception if the runit_service_dir does not exist.
     def check_service_dir
       dir_exists = File.directory?(@config["runit_service_dir"])
       raise ArgumentError, "runit_service_dir does not exist: #{@config["runit_service_dir"]}" unless dir_exists
       dir_exists
     end
     
+    # Creates the symlink between the mongrel's sv directory and the
+    # runit_service_dir.
     def make_service_link
       servicename = File.basename(@svdir)
       link = File.expand_path(File.join(@config["runit_service_dir"], servicename))
@@ -63,6 +86,24 @@ module MongrelRunit
       link
     end
     
+    # Populates the check file, either with the contents of the checkfile
+    # configuration option, or:
+    #
+    #   #!/usr/bin/env ruby
+    #
+    #   require 'net/http'
+    #
+    #   http = Net::HTTP.new('#{address}', #{@config["port"].to_i})
+    #   begin
+    #    response = http.options('/')
+    #    if response = Net::HTTPSuccess
+    #      exit 0
+    #    else 
+    #      exit 1
+    #    end
+    #  rescue Errno::ECONNREFUSED
+    #    exit 1
+    #  end
     def make_check
       address = @config["address"] || '127.0.0.1'
       @checkfile = @config["checkfile"] || <<EOH
@@ -88,6 +129,7 @@ EOH
       path_to_checkfile
     end
     
+    # Creates the sv direrectory for this mongrel. (From runit_sv_dir)
     def make_sv_dir
       @svdir = File.expand_path(File.join(
         @config["runit_sv_dir"],
@@ -101,6 +143,7 @@ EOH
       @svlogdir
     end
     
+    # If svlogd_config is defined, creates the log config file.
     def make_log_config
       path_to_file = nil
       if @config.has_key?("svlogd_config")
@@ -111,6 +154,7 @@ EOH
       path_to_file
     end
     
+    # Makes the log run script.
     def make_log
       logdir = File.expand_path(File.join(@svlogdir, "main"))
       if @config.has_key?("base_log_directory")
@@ -129,8 +173,9 @@ EOH
       path_to_logrunfile
     end
     
+    # Makes the run script, which calls mongrel directly.  The command
+    # line assembly code is taken verbatim from mongrel_cluster.
     def make_run
-      # Taken from mongrel_cluster pretty much verbatim
       argv = [ "mongrel_rails" ]
        argv << "start"
        argv << "-e #{@config["environment"]}" if @config["environment"]
