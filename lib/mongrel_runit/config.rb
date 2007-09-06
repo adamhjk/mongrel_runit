@@ -109,7 +109,7 @@ module MongrelRunit
             loaded_config = load_from_path(p)
           end
           
-          opts.on("-a NAME", "--application NAME", "The name of your Rails application. (Used for the service directories)") do |a|
+          opts.on("-a NAME", "--application NAME", "The name of your Application. (Used for the service directories)") do |a|
             @config["application_name"] = a
           end
           

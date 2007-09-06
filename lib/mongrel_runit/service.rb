@@ -16,8 +16,7 @@ module MongrelRunit
   #
   
   class Service < Base
-    
-    attr_reader :runfile, :logrunfile, :logconfig, :checkfile, :config, :svdir
+    attr_reader :runfile, :logrunfile, :logconfig, :checkfile, :svdir, :config
     
     # Takes a configuration hash as it's argument, ensures the 
     # runit_service_dir exists, and creates the runit_sv_dir.
@@ -174,45 +173,52 @@ EOH
     end
     
     # Makes the run script, which calls mongrel directly.  The command
-    # line assembly code is taken verbatim from mongrel_cluster.
+    # line assembly code for mongrel_rails is taken verbatim from mongrel_cluster.
     def make_run
-      argv = [ "mongrel_rails" ]
-       argv << "start"
-       argv << "-e #{@config["environment"]}" if @config["environment"]
-       argv << "-p #{@config["port"]}"
-       argv << "-a #{@config["address"]}"  if @config["address"]
-       argv << "-l #{@config["log_file"]}" if @config["log_file"]
-       argv << "-c #{File.expand_path(@config["cwd"])}" if @config["cwd"]
-       argv << "-t #{@config["timeout"]}" if @config["timeout"]
-       argv << "-m #{@config["mime_map"]}" if @config["mime_map"]
-       argv << "-r #{@config["docroot"]}" if @config["docroot"]
-       argv << "-n #{@config["num_procs"]}" if @config["num_procs"]
-       argv << "-B" if @config["debug"]
-       argv << "-S #{@config["config_script"]}" if @config["config_script"]
-       argv << "--user #{@config["user"]}" if @config["user"]
-       argv << "--group #{@config["group"]}" if @config["group"]
-       argv << "--prefix #{@config["prefix"]}" if @config["prefix"]
-       cmd = argv.join " "
-       
-       env = nil
-       if @config.has_key?("env_vars")
-         env = "env"
-         @config["env_vars"].each do |key, value|
-           env << " #{key.upcase}=#{value}"
-         end
+      cmd = if @config["command_line"]
+        interpret_command_line(@config["command_line"])
+      else
+        argv = [ "mongrel_rails" ]
+        argv << "start"
+        argv << "-e #{@config["environment"]}" if @config["environment"]
+        argv << "-p #{@config["port"]}"
+        argv << "-a #{@config["address"]}"  if @config["address"]
+        argv << "-l #{@config["log_file"]}" if @config["log_file"]
+        argv << "-c #{File.expand_path(@config["cwd"])}" if @config["cwd"]
+        argv << "-t #{@config["timeout"]}" if @config["timeout"]
+        argv << "-m #{@config["mime_map"]}" if @config["mime_map"]
+        argv << "-r #{@config["docroot"]}" if @config["docroot"]
+        argv << "-n #{@config["num_procs"]}" if @config["num_procs"]
+        argv << "-B" if @config["debug"]
+        argv << "-S #{@config["config_script"]}" if @config["config_script"]
+        argv << "--user #{@config["user"]}" if @config["user"]
+        argv << "--group #{@config["group"]}" if @config["group"]
+        argv << "--prefix #{@config["prefix"]}" if @config["prefix"]
+        argv.join(" ")
+      end
+      env = nil
+      if @config.has_key?("env_vars")
+       env = "env"
+       @config["env_vars"].each do |key, value|
+         env << " #{key.upcase}=#{value}"
        end
-       @runfile = "#!/bin/sh\n"
-       @runfile << "exec \\\n"
-       @runfile << "  #{env} \\\n" if env
-       @runfile << "  #{cmd} 2>&1\n"
-       
-       path_to_runfile = File.expand_path(File.join(@svdir, "run"))
-       create_or_update_file(path_to_runfile, @runfile)
-       File.chmod(0755, path_to_runfile)
-       path_to_runfile
+      end
+      @runfile = "#!/bin/sh\n"
+      @runfile << "exec \\\n"
+      @runfile << "  #{env} \\\n" if env
+      @runfile << "  #{cmd} 2>&1\n"
+
+      path_to_runfile = File.expand_path(File.join(@svdir, "run"))
+      create_or_update_file(path_to_runfile, @runfile)
+      File.chmod(0755, path_to_runfile)
+      path_to_runfile
     end
 
     private
+    
+      def interpret_command_line(cmd)
+        eval("\"#{cmd}\"")
+      end
       
       def create_or_update_file(file, new_contents)
         write = 1
