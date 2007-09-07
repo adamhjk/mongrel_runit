@@ -50,7 +50,9 @@ module MongrelRunit
     
     # Run a given command through sv.
     def run(status)
-      cmd = "sv #{status} #{@svdir}"
+      cmd = "sv "
+      cmd += " -w #{@config['svwait']}" if @config.has_key?('svwait')
+      cmd += " #{status} #{@svdir}"
       output = `#{cmd}`
       return output, $?.success?
     end
@@ -220,7 +222,12 @@ EOH
     private
     
       def interpret_line(cmd)
-        eval("\"#{cmd}\"")
+        begin
+          eval("\"#{cmd}\"")
+        rescue SyntaxError
+          puts "You have a syntax error in your string; perhaps you included a double quote without escaping it?"
+          raise
+        end        
       end
       
       def create_or_update_file(file, new_contents)

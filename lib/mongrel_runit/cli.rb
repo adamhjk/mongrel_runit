@@ -49,7 +49,7 @@ module MongrelRunit
     def execute
       response, status = @servicerunner.run(@config.command)
       if @config.verbose || status == false
-        response.each do |key, value|
+        response.sort.each do |key, value|
           puts "#{key}: #{value[1]}: #{value[0]}"
         end
       end
