@@ -55,6 +55,7 @@ module MongrelRunit
       @config["application_name"] ||= appname
       @config["runit_svdir"] ||= '/etc/sv'
       @config["runit_service_dir"] ||= '/var/service'
+      @config["address"] ||= '127.0.0.1'
       
       raise ArgumentError, "Must supply an application_name!" unless @config["application_name"]
       

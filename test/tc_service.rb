@@ -74,6 +74,13 @@ EOH
     checkfile = @service.make_check
     assert_equal(@service.checkfile, IO.read(checkfile), "check file created")
     assert(File.executable?(checkfile), "check file executable")
+    new_config = @config.dup
+    new_config["checkfile"] = <<EOH
+foo #{@config['address']} #{@config['port']}
+EOH
+    config_service = MongrelRunit::Service.new(new_config)
+    checkfile = config_service.make_check
+    assert_equal("foo 127.0.0.1 8191\n", config_service.checkfile)
   end
   
   def test_make_log_config

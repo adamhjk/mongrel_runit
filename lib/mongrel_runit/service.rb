@@ -104,13 +104,15 @@ module MongrelRunit
     #    exit 1
     #  end
     def make_check
-      address = @config["address"] || '127.0.0.1'
-      @checkfile = @config["checkfile"] || <<EOH
+      if @config.has_key?("checkfile") 
+        @checkfile = interpret_line(@config["checkfile"])
+      else
+        @checkfile = <<EOH
 #!/usr/bin/env ruby
 
 require 'net/http'
 
-http = Net::HTTP.new('#{address}', #{@config["port"].to_i})
+http = Net::HTTP.new('#{@config['address']}', #{@config["port"].to_i})
 begin
   response = http.options('/')
   if response = Net::HTTPSuccess
@@ -122,6 +124,7 @@ rescue Errno::ECONNREFUSED
   exit 1
 end
 EOH
+      end
       path_to_checkfile = File.expand_path(File.join(@svdir, "check"))
       create_or_update_file(path_to_checkfile, @checkfile)
       File.chmod(0755, path_to_checkfile)
@@ -176,7 +179,7 @@ EOH
     # line assembly code for mongrel_rails is taken verbatim from mongrel_cluster.
     def make_run
       cmd = if @config["command_line"]
-        interpret_command_line(@config["command_line"])
+        interpret_line(@config["command_line"])
       else
         argv = [ "mongrel_rails" ]
         argv << "start"
@@ -216,7 +219,7 @@ EOH
 
     private
     
-      def interpret_command_line(cmd)
+      def interpret_line(cmd)
         eval("\"#{cmd}\"")
       end
       
