@@ -1,7 +1,7 @@
 README for mongrel_runit
 ========================
 
-This is a very early pass at using runit to control a set of mongrel
+This is a mongrel_cluster replacement using runit to control a set of mongrel
 instances.  It provides all of the features inherent in services being
 managed by runit, and knows how to check each running mongrel for status.
 
