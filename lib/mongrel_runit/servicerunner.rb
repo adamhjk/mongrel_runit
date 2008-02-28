@@ -5,7 +5,7 @@ require 'find'
 module MongrelRunit
   class ServiceRunner < Base
     include Enumerable 
-    
+      
     def initialize(config)
       @config = config
       @mongrel_services = {}

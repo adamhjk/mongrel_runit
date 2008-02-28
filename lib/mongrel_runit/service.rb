@@ -208,9 +208,15 @@ EOH
          env << " #{key.upcase}=#{value}"
        end
       end
+      chpst = nil
+      if @config.has_key?("chpst")
+        chpst_command = `which chpst`.chomp
+        chpst = "#{chpst_command} #{@config['chpst']}"
+      end
       @runfile = "#!/bin/sh\n"
       @runfile << "exec \\\n"
       @runfile << "  #{env} \\\n" if env
+      @runfile << "  #{chpst} \\\n" if chpst
       @runfile << "  #{cmd} 2>&1\n"
 
       path_to_runfile = File.expand_path(File.join(@svdir, "run"))

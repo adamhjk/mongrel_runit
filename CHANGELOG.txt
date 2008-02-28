@@ -1,4 +1,5 @@
-Thu Sep  6 14:53:07 PDT 2007 - adam
-
+Thu Feb 28 14:07:36 PST 2008 - adam
+    * Added chpst functionality, so that you can change the process state.
+    
 Thu Mar 22 12:46:41 PDT 2007 - adam
     * Initial Release.

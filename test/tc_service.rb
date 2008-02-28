@@ -106,6 +106,13 @@ EOH
 exec \\
   moofyboogles -p 8191 2>&1
 EOH
+    chpst_path = `which chpst`.chomp
+    chpst_file = <<EOH
+#!/bin/sh
+exec \\
+  #{chpst_path} -o 3365 \\
+  mongrel_rails start -e production -p 8191 -a 127.0.0.1 -c #{File.dirname(__FILE__) + '/testapp'} -n 1024 2>&1
+EOH
     assert_equal(no_env_file, @service.runfile)
     assert_equal(@service.runfile, IO.read(no_env_runfile))
     
@@ -116,6 +123,14 @@ EOH
     assert_equal(env_file, env_service.runfile)
     assert_equal(env_service.runfile, IO.read(env_service_runfile))
     assert(File.executable?(env_service_runfile), "run file executable")
+    
+    chpst_config = @config.dup
+    chpst_config["chpst"] = "-o 3365"
+    chpst_service = MongrelRunit::Service.new(chpst_config)
+    chpst_service_runfile = chpst_service.make_run
+    assert_equal(chpst_file, chpst_service.runfile)
+    assert_equal(chpst_service.runfile, IO.read(chpst_service_runfile))
+    assert(File.executable?(chpst_service_runfile), "run file executable")
     
     command_line_config = @config.dup
     command_line_config["command_line"] = 'moofyboogles -p #{@config["port"]}'
