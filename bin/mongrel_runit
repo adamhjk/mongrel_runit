@@ -1,4 +1,4 @@
-#! /usr/local/bin/ruby
+#!/usr/bin/env ruby
 #
 #  Created by Adam Jacob on 2007-03-22.
 #  Copyright (c) 2007. All rights reserved.

@@ -1,3 +1,6 @@
+Tue May 20 11:07:51 PDT 2008
+    * Updated the bang-path to be /usr/bin/env ruby, thanks for the catch, ashp
+
 Thu Feb 28 14:07:36 PST 2008 - adam
     * Added chpst functionality, so that you can change the process state.
     
