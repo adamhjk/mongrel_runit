@@ -12,13 +12,12 @@ require "delegate"
 include FileUtils
 require File.join(File.dirname(__FILE__), 'lib', 'mongrel_runit', 'version')
 
-AUTHOR = "adam"  # can also be an array of Authors
+AUTHOR = "Adam Jacob"  # can also be an array of Authors
 EMAIL = "adam@hjksolutions.com"
 DESCRIPTION = "Use runit to manage a mongrel cluster"
 GEM_NAME = "mongrel_runit" # what ppl will type to install your gem
 RUBYFORGE_PROJECT = "mongrel_runit" # The unix name for your project
-HOMEPATH = "http://#{RUBYFORGE_PROJECT}.rubyforge.org"
-
+HOMEPATH = "https://wiki.hjksolutions.com/display/MR/Home"
 
 NAME = "mongrel_runit"
 REV = nil # UNCOMMENT IF REQUIRED: File.read(".svn/entries")[/committed-rev="(d+)"/, 1] rescue nil
