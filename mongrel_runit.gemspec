@@ -1,4 +1,3 @@
-(in /Users/adam/src/sandbox/mongrel_runit)
 Gem::Specification.new do |s|
   s.name = %q{mongrel_runit}
   s.version = "0.2.1"
